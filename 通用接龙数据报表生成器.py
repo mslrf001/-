@@ -999,23 +999,7 @@ def generate_new_business_report(dragon_text, status_callback, config_dir=None):
             if not text or not keywords:
                 return None, 0.0, ""
 
-            # 定义业务相关的通用关键字，用于过滤
-            business_keywords = {
-                '积分', '业务', '办理', '新增', '存量', '经理', '支局', '分局',
-                '厅店', '渠道', '通报', '数据', '统计', '汇总', '合计', '总计',
-                '笔数', '数量', '金额', '收入', '完成', '达成', '目标', '任务',
-                '排名', '表扬', '提醒', '通知', '今日', '今天', '本周', '本月',
-                '第', '名', '家', '个', '条', '笔', '元', '万', '千', '百',
-                '的', '了', '在', '为', '有', '和', '与', '或', '及',
-                '移动', '联通', '电信', '运营商', '通信', '服务', '客户',
-                '用户', '套餐', '资费', '流量', '语音', '短信', '宽带',
-                '电视', '手机', '号码', '卡', '号', '开户', '入网',
-                '充值', '缴费', '话费', '余额', '查询', '办理', '变更',
-                '取消', '退订', '开通', '关闭', '激活', '停用',
-                '新', '老', '旧', '现', '原', '前', '后', '上', '下',
-                '中', '大', '小', '高', '低', '多', '少', '好', '坏',
-                '优', '良', '差', '强', '弱', '快', '慢', '早', '晚'
-            }
+
 
             # 不过滤关键字，保留所有有效关键字
             filtered_keywords = keywords
@@ -1679,119 +1663,110 @@ class ReportApp(ttk.Window):
         self.text_input.see(tk.INSERT)
         self.text_input.focus_set()
 
-    # 异常记录文本框右键菜单相关方法
-    def show_manager_abnormal_records_text_menu(self, event):
-        """显示存量经理异常记录文本框的右键菜单"""
-        try:
-            self.manager_abnormal_records_text_menu.tk_popup(event.x_root, event.y_root)
-        finally:
-            self.manager_abnormal_records_text_menu.grab_release()
-    
-    def copy_manager_abnormal_records_text(self):
-        """复制存量经理异常记录文本框中的选中文本"""
-        try:
-            self.manager_abnormal_records_text.event_generate("<<Copy>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
-    
-    def select_all_manager_abnormal_records_text(self):
-        """全选存量经理异常记录文本框中的文本"""
-        self.manager_abnormal_records_text.tag_add(tk.SEL, "1.0", tk.END)
-        self.manager_abnormal_records_text.mark_set(tk.INSERT, "1.0")
-        self.manager_abnormal_records_text.see(tk.INSERT)
-        self.manager_abnormal_records_text.focus_set()
-    
-    def cut_manager_abnormal_records_text(self):
-        """剪切存量经理异常记录文本框中的选中文本"""
-        try:
-            self.manager_abnormal_records_text.event_generate("<<Cut>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
-    
-    def paste_manager_abnormal_records_text(self):
-        """粘贴到存量经理异常记录文本框"""
-        try:
-            self.manager_abnormal_records_text.event_generate("<<Paste>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
-
     def clear_new_business_text(self):
         """清除渠道厅店新增业务文本输入框和异常记录的内容"""
         self.new_business_text_input.delete("1.0", tk.END)
         self.abnormal_records_text.delete("1.0", tk.END)
         self.new_business_status_label.config(text="数据已清除，可以粘贴新的接龙内容。", bootstyle=INFO)
     
-    # 右键菜单相关方法
+    # 通用文本操作方法
+    def _show_text_menu(self, menu, event):
+        """通用显示文本菜单方法"""
+        try:
+            menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            menu.grab_release()
+    
+    def _copy_text(self, text_widget):
+        """通用复制文本方法"""
+        try:
+            text_widget.event_generate("<<Copy>>")
+        except tk.TclError:
+            pass
+    
+    def _cut_text(self, text_widget):
+        """通用剪切文本方法"""
+        try:
+            text_widget.event_generate("<<Cut>>")
+        except tk.TclError:
+            pass
+    
+    def _paste_text(self, text_widget):
+        """通用粘贴文本方法"""
+        try:
+            text_widget.event_generate("<<Paste>>")
+        except tk.TclError:
+            pass
+    
+    def _select_all_text(self, text_widget):
+        """通用全选文本方法"""
+        text_widget.tag_add(tk.SEL, "1.0", tk.END)
+        text_widget.mark_set(tk.INSERT, "1.0")
+        text_widget.see(tk.INSERT)
+        text_widget.focus_set()
+    
+    # 存量经理异常记录文本框右键菜单相关方法
+    def show_manager_abnormal_records_text_menu(self, event):
+        """显示存量经理异常记录文本框的右键菜单"""
+        self._show_text_menu(self.manager_abnormal_records_text_menu, event)
+    
+    def copy_manager_abnormal_records_text(self):
+        """复制存量经理异常记录文本框中的选中文本"""
+        self._copy_text(self.manager_abnormal_records_text)
+    
+    def select_all_manager_abnormal_records_text(self):
+        """全选存量经理异常记录文本框中的文本"""
+        self._select_all_text(self.manager_abnormal_records_text)
+    
+    def cut_manager_abnormal_records_text(self):
+        """剪切存量经理异常记录文本框中的选中文本"""
+        self._cut_text(self.manager_abnormal_records_text)
+    
+    def paste_manager_abnormal_records_text(self):
+        """粘贴到存量经理异常记录文本框"""
+        self._paste_text(self.manager_abnormal_records_text)
+    
+    # 渠道厅店新增业务文本框右键菜单相关方法
     def show_new_business_text_input_menu(self, event):
         """显示渠道厅店新增业务文本框的右键菜单"""
-        try:
-            self.new_business_text_input_menu.tk_popup(event.x_root, event.y_root)
-        finally:
-            self.new_business_text_input_menu.grab_release()
+        self._show_text_menu(self.new_business_text_input_menu, event)
     
     def cut_new_business_text_input(self):
         """剪切渠道厅店新增业务文本框中的选中文本"""
-        try:
-            self.new_business_text_input.event_generate("<<Cut>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
+        self._cut_text(self.new_business_text_input)
     
     def copy_new_business_text_input(self):
         """复制渠道厅店新增业务文本框中的选中文本"""
-        try:
-            self.new_business_text_input.event_generate("<<Copy>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
+        self._copy_text(self.new_business_text_input)
     
     def paste_new_business_text_input(self):
         """粘贴到渠道厅店新增业务文本框"""
-        try:
-            self.new_business_text_input.event_generate("<<Paste>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
+        self._paste_text(self.new_business_text_input)
     
     def select_all_new_business_text_input(self):
         """全选渠道厅店新增业务文本框中的文本"""
-        self.new_business_text_input.tag_add(tk.SEL, "1.0", tk.END)
-        self.new_business_text_input.mark_set(tk.INSERT, "1.0")
-        self.new_business_text_input.see(tk.INSERT)
-        self.new_business_text_input.focus_set()
+        self._select_all_text(self.new_business_text_input)
     
     # 渠道厅店异常记录文本框右键菜单相关方法
     def show_abnormal_records_text_menu(self, event):
         """显示渠道厅店异常记录文本框的右键菜单"""
-        try:
-            self.abnormal_records_text_menu.tk_popup(event.x_root, event.y_root)
-        finally:
-            self.abnormal_records_text_menu.grab_release()
+        self._show_text_menu(self.abnormal_records_text_menu, event)
     
     def copy_abnormal_records_text(self):
         """复制渠道厅店异常记录文本框中的选中文本"""
-        try:
-            self.abnormal_records_text.event_generate("<<Copy>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
+        self._copy_text(self.abnormal_records_text)
     
     def select_all_abnormal_records_text(self):
         """全选渠道厅店异常记录文本框中的文本"""
-        self.abnormal_records_text.tag_add(tk.SEL, "1.0", tk.END)
-        self.abnormal_records_text.mark_set(tk.INSERT, "1.0")
-        self.abnormal_records_text.see(tk.INSERT)
-        self.abnormal_records_text.focus_set()
+        self._select_all_text(self.abnormal_records_text)
     
     def cut_abnormal_records_text(self):
         """剪切渠道厅店异常记录文本框中的选中文本"""
-        try:
-            self.abnormal_records_text.event_generate("<<Cut>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
+        self._cut_text(self.abnormal_records_text)
     
     def paste_abnormal_records_text(self):
         """粘贴到渠道厅店异常记录文本框"""
-        try:
-            self.abnormal_records_text.event_generate("<<Paste>>")
-        except tk.TclError:
-            pass  # 忽略不支持的操作
+        self._paste_text(self.abnormal_records_text)
 
     def start_new_business_report_generation(self):
         """开始渠道厅店新增业务报表生成过程"""
